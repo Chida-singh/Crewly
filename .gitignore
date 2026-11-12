@@ -1,0 +1,36 @@
+# Binaries
+bin/
+backend/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test and coverage artifacts
+*.test
+*.out
+coverage.txt
+
+# Tooling cache/history
+.cecli/
+.env
+.env.*
+!.env.example
+
+# IDEs and OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Docker volumes / local data
+pgdata/
+
+# Future frontend (Expo / Node)
+node_modules/
+.expo/
+dist/
+web-build/
