@@ -56,3 +56,4 @@ func TestConfigLoadCustomEnv(t *testing.T) {
 		t.Errorf("expected custom jwt secret, got %s", cfg.JWTSecret)
 	}
 }
+

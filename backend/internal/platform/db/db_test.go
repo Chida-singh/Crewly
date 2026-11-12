@@ -34,3 +34,4 @@ func TestDatabasePing(t *testing.T) {
 		t.Errorf("expected 1 from SELECT 1, got %d", result)
 	}
 }
+

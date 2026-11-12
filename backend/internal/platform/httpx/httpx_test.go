@@ -48,3 +48,4 @@ func TestError(t *testing.T) {
 		t.Errorf("expected 'invalid payload', got %s", res.Error)
 	}
 }
+

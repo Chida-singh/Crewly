@@ -38,3 +38,4 @@ func TestHealthEndpointDegradedWhenNoDB(t *testing.T) {
 		t.Errorf("expected degraded/down, got %v", res)
 	}
 }
+

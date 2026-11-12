@@ -32,3 +32,4 @@ test:
 
 run:
 	go run ./backend/cmd/api
+

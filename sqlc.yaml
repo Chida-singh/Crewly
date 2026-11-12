@@ -8,3 +8,4 @@ sql:
         package: "db"
         out: "backend/internal/platform/db"
         sql_package: "pgx/v5"
+

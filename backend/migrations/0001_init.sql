@@ -103,3 +103,4 @@ DROP TABLE IF EXISTS profile_photos;
 DROP TABLE IF EXISTS client_profiles;
 DROP TABLE IF EXISTS talent_profiles;
 DROP TABLE IF EXISTS users;
+

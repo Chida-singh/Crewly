@@ -35,3 +35,4 @@ paths:
                   database:
                     type: string
                     example: down
+
