@@ -13,7 +13,8 @@ Direct hiring marketplace for India's creative workforce. Clients post requests,
 - **Query Generation:** `sqlc` (type-safe SQL, zero ORM overhead)
 - **Migrations:** `goose`
 - **API Spec:** OpenAPI 3.0 (`backend/api/openapi.yaml`)
-- **Frontend:** React 19 + TypeScript + Vite (`frontend/`)
+- **Web frontend:** React 19 + TypeScript + Vite (`frontend/`)
+- **Mobile frontend (planned):** React Native + Expo (`mobile/`), same Go API
 
 ---
 
@@ -45,13 +46,26 @@ crewly/
 
 ---
 
+## Platforms
+
+Crewly is one product with two surfaces. The API is shared; only the client differs.
+
+| Surface | Folder | Status today |
+|---|---|---|
+| Desktop / laptop browser | `frontend/` | working |
+| Phone browser (responsive web) | `frontend/` | working over your Wi-Fi |
+| Native app (React Native + Expo) | `mobile/` | planned, not scaffolded |
+
+Everything below runs on your own machine; nothing is deployed.
+
 ## Quickstart
 
 ### What you need
-- **Frontend only:** Bun (or npm). No Docker, no database.
+- **Web only:** Bun (or npm). No Docker, no database.
 - **Full stack:** Go 1.24+, Docker & Docker Compose for Postgres. `make` is optional.
+- **Native app (later):** Node 20+, the Expo Go app on your phone.
 
-### 1. Just the app — fastest way to see it
+### 1. On a PC — fastest way to see it
 
 ```bash
 cd frontend
@@ -65,7 +79,24 @@ pre-filled with placeholder data, so the whole app is clickable without any back
 The demo sheet is memory-only: edits and uploaded frames reset when you refresh. To bring the
 real OTP ticket back, set `VITE_AUTH_BYPASS=false` in `frontend/.env.development` and restart.
 
-### 2. Full stack — API + Postgres
+### 2. On a phone today — same web app over your Wi-Fi
+
+The layout is responsive down to 375px, so you can use the phone browser with no extra build:
+
+```bash
+cd frontend
+bun run dev -- --host
+```
+
+1. Find your computer's LAN IP (`ipconfig` on Windows, `ifconfig` on macOS, `ip addr` on Linux).
+2. On the phone, open `http://<that-ip>:5173`.
+3. Both devices must be on the same Wi-Fi. On Windows, allow Node through the firewall for
+   private networks the first time it asks.
+
+The API, if you are running it, stays on the computer: the dev server proxies to `127.0.0.1:8080`
+for you. This is still a browser tab, not an installed app — no app icon or push notifications yet.
+
+### 3. Full stack — API + Postgres
 
 You do **not** need `docker compose build`: the compose file only runs Postgres, and the API runs
 straight from Go.
@@ -102,6 +133,25 @@ and restart `bun run dev` to test the real phone-code login. The 6-digit code is
 API log (dev SMS stub).
 
 `make db-up`, `make migrate` and `make run` do the same three steps if `make` is installed.
+
+### 4. Native app — later, once `mobile/` exists
+
+The Expo client will reuse the same Go API; nothing here is generated yet. When the folder is
+scaffolded, the loop will be:
+
+```bash
+cd mobile
+bun install
+npx expo start
+```
+
+- Press `a` for an Android emulator, `i` for the iOS simulator (macOS only), or scan the QR code
+  with Expo Go on a physical phone.
+- Point the app at your API with `EXPO_PUBLIC_API_URL=http://<LAN-IP>:8080` in `mobile/.env`, and
+  keep the phone on the same Wi-Fi as the computer.
+- Hot reload works the same way as the web app; changes appear on the phone without a rebuild.
+
+Ask for the mobile scaffold when you are ready and this section becomes real commands.
 
 ### Tests and code generation
 
