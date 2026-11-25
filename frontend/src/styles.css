@@ -121,6 +121,16 @@ a {
   border-color: rgba(164, 20, 60, 0.35);
 }
 
+.dev-badge {
+  border: 1px dashed var(--madder);
+  padding: 3px 8px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--madder);
+  white-space: nowrap;
+}
+
 .role-chip {
   border: 1px solid var(--ink);
   padding: 3px 9px;
@@ -310,6 +320,41 @@ a {
   align-items: baseline;
   gap: 12px;
   font-size: 14px;
+  color: var(--ink-60);
+}
+
+.dev-entry {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+  width: min(100%, 440px);
+  background: var(--chalk);
+  border: 1px solid var(--ink);
+  border-radius: 3px;
+  padding: 22px;
+}
+
+.dev-entry-kicker {
+  width: 100%;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--ink-40);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--madder);
+}
+
+.dev-entry h2 {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 34px;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.dev-entry-copy {
+  font-size: 14px;
+  line-height: 1.5;
   color: var(--ink-60);
 }
 

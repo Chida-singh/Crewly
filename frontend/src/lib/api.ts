@@ -1,3 +1,11 @@
+import {
+  AUTH_BYPASS,
+  devGetProfile,
+  devSaveClientProfile,
+  devSaveTalentProfile,
+  devUploadPhoto,
+} from "./dev";
+
 export const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
 export type Role = "talent" | "client";
@@ -100,6 +108,7 @@ export function verifyOtp(
 }
 
 export async function getProfile(token: string): Promise<Profile | null> {
+  if (AUTH_BYPASS) return devGetProfile();
   try {
     return await call<Profile>("/me/profile", { token });
   } catch (error) {
@@ -109,14 +118,18 @@ export async function getProfile(token: string): Promise<Profile | null> {
 }
 
 export function saveTalentProfile(token: string, input: TalentInput): Promise<TalentProfile> {
+  if (AUTH_BYPASS) return Promise.resolve(devSaveTalentProfile(input));
   return call("/me/profile", { method: "PUT", token, body: input });
 }
 
 export function saveClientProfile(token: string, input: ClientInput): Promise<ClientProfile> {
+  if (AUTH_BYPASS) return Promise.resolve(devSaveClientProfile(input));
   return call("/me/profile", { method: "PUT", token, body: input });
 }
 
 export async function uploadPhoto(token: string, file: File): Promise<Photo> {
+  if (AUTH_BYPASS) return devUploadPhoto(file);
+
   const contentType = file.type || "image/jpeg";
   const reserved = await call<{ photo: Photo; upload_url: string }>("/me/photos", {
     method: "POST",

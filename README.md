@@ -13,7 +13,7 @@ Direct hiring marketplace for India's creative workforce. Clients post requests,
 - **Query Generation:** `sqlc` (type-safe SQL, zero ORM overhead)
 - **Migrations:** `goose`
 - **API Spec:** OpenAPI 3.0 (`backend/api/openapi.yaml`)
-- **Frontend (planned):** React Native / Expo
+- **Frontend:** React 19 + TypeScript + Vite (`frontend/`)
 
 ---
 
@@ -40,57 +40,76 @@ crewly/
 │   ├── migrations/               # Goose SQL migrations (0001_init.sql)
 │   ├── queries/                  # sqlc SQL queries
 │   └── api/                      # OpenAPI 3.0 specification
+└── frontend/                     # React 19 + TypeScript + Vite app
 ```
 
 ---
 
-## Developer Quickstart
+## Quickstart
 
-### Prerequisites
-- [Go](https://go.dev/) (1.24+)
-- [Docker](https://www.docker.com/) & Docker Compose
-- `make` (optional; commands can be run via `go` / `docker` directly)
+### What you need
+- **Frontend only:** Bun (or npm). No Docker, no database.
+- **Full stack:** Go 1.24+, Docker & Docker Compose for Postgres. `make` is optional.
 
-### Setup & Run
+### 1. Just the app — fastest way to see it
 
-1. **Clone repository & copy environment variables:**
+```bash
+cd frontend
+bun install
+bun run dev
+```
+
+Open <http://127.0.0.1:5173>. Sign-in is switched off for local development and the sheet starts
+pre-filled with placeholder data, so the whole app is clickable without any backend.
+
+The demo sheet is memory-only: edits and uploaded frames reset when you refresh. To bring the
+real OTP ticket back, set `VITE_AUTH_BYPASS=false` in `frontend/.env.development` and restart.
+
+### 2. Full stack — API + Postgres
+
+You do **not** need `docker compose build`: the compose file only runs Postgres, and the API runs
+straight from Go.
+
+1. **Environment:**
    ```bash
    cp .env.example .env
    ```
 
-2. **Start PostgreSQL:**
+2. **Database:**
    ```bash
-   make db-up
-   # Or: docker compose up -d postgres
+   docker compose up -d postgres
    ```
 
-3. **Run database migrations:**
+3. **Migrations:**
    ```bash
-   make migrate
+   go run github.com/pressly/goose/v3/cmd/goose -dir backend/migrations postgres \
+     "postgres://crewly:crewly_secret@localhost:5432/crewly?sslmode=disable" up
    ```
 
-4. **Start API server:**
+4. **API:**
    ```bash
-   make run
-   # Or: go run ./backend/cmd/api
+   go run ./backend/cmd/api
    ```
 
-5. **Verify health check:**
+5. **Check it's up:**
    ```bash
    curl -i http://localhost:8080/health
    ```
+   Expect `{"status":"ok","database":"up"}`.
 
-6. **Run tests:**
-   ```bash
-   make test
-   # Or: go test -v ./backend/...
-   ```
+With Postgres and the API running, set `VITE_AUTH_BYPASS=false` in `frontend/.env.development`
+and restart `bun run dev` to test the real phone-code login. The 6-digit code is printed in the
+API log (dev SMS stub).
 
-7. **Generate typed queries (sqlc):**
-   ```bash
-   make sqlc
-   # Or: sqlc generate
-   ```
+`make db-up`, `make migrate` and `make run` do the same three steps if `make` is installed.
+
+### Tests and code generation
+
+```bash
+go test ./backend/...                                      # backend tests
+go run github.com/sqlc-dev/sqlc/cmd/sqlc generate          # after editing backend/queries/
+cd frontend && bun run build                              # typecheck + production build
+```
 
 ---
 

@@ -14,6 +14,7 @@ import {
   type Profile,
   type TalentProfile,
 } from "../lib/api";
+import { DEV_USER } from "../lib/dev";
 import { useSession } from "../lib/session";
 
 const MAX_PHOTOS = 12;
@@ -21,8 +22,8 @@ const MAX_PHOTOS = 12;
 export function SheetPage() {
   const { session, logout } = useSession();
   const navigate = useNavigate();
-  const token = session!.token;
-  const user = session!.user;
+  const token = session?.token ?? "dev";
+  const user = session?.user ?? DEV_USER;
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,9 +59,10 @@ export function SheetPage() {
         </Link>
         <div className="topbar-right">
           <ApiStatus />
+          {session ? null : <span className="dev-badge">Auth off</span>}
           <span className="role-chip">{user.role === "talent" ? "Talent" : "Client"}</span>
           <button type="button" className="link" onClick={signOut}>
-            Log out
+            {session ? "Log out" : "Exit demo"}
           </button>
         </div>
       </header>

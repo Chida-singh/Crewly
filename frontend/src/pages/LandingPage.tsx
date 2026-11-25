@@ -2,6 +2,7 @@ import { Link, Navigate } from "react-router-dom";
 
 import { ApiStatus } from "../components/ApiStatus";
 import { AuthTicket } from "../components/AuthTicket";
+import { AUTH_BYPASS, DEV_USER } from "../lib/dev";
 import { useSession } from "../lib/session";
 
 const steps = [
@@ -21,6 +22,22 @@ const steps = [
     copy: "Chat opens only when both sides agree. No cold calls, no manager's cut.",
   },
 ];
+
+function DevEntry() {
+  return (
+    <div className="dev-entry">
+      <p className="dev-entry-kicker">Auth switched off</p>
+      <h2>Preview the sheet</h2>
+      <p className="dev-entry-copy">
+        Sign-in is disabled for local development, so you are browsing as {DEV_USER.role}. Set
+        VITE_AUTH_BYPASS=false in frontend/.env.development to bring the ticket back.
+      </p>
+      <Link className="btn" to="/sheet">
+        Open the sheet
+      </Link>
+    </div>
+  );
+}
 
 export function LandingPage() {
   const { session } = useSession();
@@ -65,7 +82,7 @@ export function LandingPage() {
           </section>
 
           <section className="checkin" aria-label="Sign in">
-            <AuthTicket />
+            {AUTH_BYPASS ? <DevEntry /> : <AuthTicket />}
           </section>
         </div>
 
