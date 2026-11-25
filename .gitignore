@@ -28,6 +28,7 @@ Thumbs.db
 
 # Docker volumes / local data
 pgdata/
+uploads/
 
 # Future frontend (Expo / Node)
 node_modules/

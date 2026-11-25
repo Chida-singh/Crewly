@@ -22,14 +22,14 @@ Read `design.md` for architecture and `data-diagram.md` for the schema before st
 - **Done when:** `make run` serves `/health` and the migration applies cleanly on a fresh database.
 
 ### Week 2: Auth and profiles
-- [ ] `POST /auth/otp`: generate OTP, store hashed with expiry, rate limit per phone
-- [ ] SMS client interface with a **dev stub that logs the OTP**
-- [ ] `POST /auth/verify`: check OTP, create user if new, return JWT
-- [ ] JWT middleware that puts `user_id` and `role` in the request context
-- [ ] `GET/PUT /me/profile` for talent and client roles
-- [ ] `POST /me/photos`: presigned upload URL, save URL in `profile_photos`
-- [ ] Enforce 18+ at profile creation (DB check already exists)
-- [ ] Unit tests for the auth service
+- [x] `POST /auth/otp`: generate OTP, store hashed with expiry, rate limit per phone
+- [x] SMS client interface with a **dev stub that logs the OTP**
+- [x] `POST /auth/verify`: check OTP, create user if new, return JWT
+- [x] JWT middleware that puts `user_id` and `role` in the request context
+- [x] `GET/PUT /me/profile` for talent and client roles
+- [x] `POST /me/photos`: presigned upload URL, save URL in `profile_photos`
+- [x] Enforce 18+ at profile creation (DB check already exists)
+- [x] Unit tests for the auth service
 - **Done when:** you can sign up as talent and as client using curl only.
 
 ### Week 3: Jobs and applications

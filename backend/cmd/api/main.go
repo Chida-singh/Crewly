@@ -14,9 +14,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	"crewly/backend/internal/auth"
 	"crewly/backend/internal/config"
 	"crewly/backend/internal/platform/db"
 	"crewly/backend/internal/platform/httpx"
+	"crewly/backend/internal/platform/sms"
+	"crewly/backend/internal/platform/storage"
+	"crewly/backend/internal/profile"
 )
 
 func main() {
@@ -78,6 +82,28 @@ func main() {
 			"database": dbStatus,
 		})
 	})
+
+	if pool != nil {
+		tokens := auth.NewTokens(cfg.JWTSecret)
+		authSvc := auth.NewService(auth.NewPGRepo(pool), sms.NewDevSender(logger), tokens)
+		r.Mount("/auth", auth.NewHandler(authSvc).Routes())
+
+		profileSvc := profile.NewService(profile.NewPGRepo(pool), storage.NewDevPresigner(cfg.PublicBaseURL))
+		profileHandler := profile.NewHandler(profileSvc)
+		r.Group(func(pr chi.Router) {
+			pr.Use(auth.RequireAuth(tokens))
+			pr.Get("/me/profile", profileHandler.GetProfile)
+			pr.Put("/me/profile", profileHandler.PutProfile)
+			pr.Post("/me/photos", profileHandler.AddPhoto)
+		})
+	} else {
+		logger.Warn("database unavailable: auth and profile routes are disabled")
+	}
+
+	// Local stand-in for object storage; never enabled in production.
+	if cfg.Env != "production" {
+		r.Put("/uploads/*", storage.DevUploadHandler("uploads"))
+	}
 
 	server := &http.Server{
 		Addr:         ":" + cfg.Port,

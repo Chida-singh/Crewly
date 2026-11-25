@@ -9,8 +9,9 @@ import (
 type Config struct {
 	Port        string
 	Env         string
-	DatabaseURL string
-	JWTSecret   string
+	DatabaseURL   string
+	JWTSecret     string
+	PublicBaseURL string
 }
 
 // Load reads config from environment variables, optionally reading a .env file if present.
@@ -21,8 +22,9 @@ func Load() (*Config, error) {
 	cfg := &Config{
 		Port:        getEnv("PORT", "8080"),
 		Env:         getEnv("ENV", "development"),
-		DatabaseURL: getEnv("DATABASE_URL", "postgres://crewly:crewly_secret@localhost:5432/crewly?sslmode=disable"),
-		JWTSecret:   getEnv("JWT_SECRET", "dev_jwt_secret_crewly_market_2026_super_secure"),
+		DatabaseURL:   getEnv("DATABASE_URL", "postgres://crewly:crewly_secret@localhost:5432/crewly?sslmode=disable"),
+		JWTSecret:     getEnv("JWT_SECRET", "dev_jwt_secret_crewly_market_2026_super_secure"),
+		PublicBaseURL: getEnv("PUBLIC_BASE_URL", "http://localhost:8080"),
 	}
 
 	return cfg, nil

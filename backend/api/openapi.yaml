@@ -1,13 +1,16 @@
 openapi: 3.0.3
 info:
   title: Crewly API
-  version: 0.1.0
+  version: 0.2.0
   description: Direct hiring marketplace API for India's creative workforce.
+security:
+  - bearerAuth: []
 paths:
   /health:
     get:
       summary: Health check
       description: Returns service status and database connectivity.
+      security: []
       responses:
         '200':
           description: Service is healthy
@@ -36,3 +39,241 @@ paths:
                     type: string
                     example: down
 
+  /auth/otp:
+    post:
+      summary: Request an OTP for a phone number
+      description: Stores a hashed 6-digit code for 5 minutes and sends it by SMS (dev stub logs it). Limited to 3 requests per phone per 10 minutes.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone:
+                  type: string
+                  example: '9876543210'
+      responses:
+        '202':
+          description: OTP sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: otp sent
+        '400':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+
+  /auth/verify:
+    post:
+      summary: Verify an OTP and receive a JWT
+      description: Creates the user on first login. `role` is required only when the phone has no account yet.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, code]
+              properties:
+                phone:
+                  type: string
+                  example: '9876543210'
+                code:
+                  type: string
+                  example: '123456'
+                role:
+                  type: string
+                  enum: [talent, client]
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/Error'
+
+  /me/profile:
+    get:
+      summary: Get the caller's profile
+      responses:
+        '200':
+          description: Profile for the caller's role
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/TalentProfile'
+                  - $ref: '#/components/schemas/ClientProfile'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: Create or update the caller's profile
+      description: Talent must be 18 or older.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/TalentProfileInput'
+                - $ref: '#/components/schemas/ClientProfileInput'
+      responses:
+        '200':
+          description: Saved profile
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/TalentProfile'
+                  - $ref: '#/components/schemas/ClientProfile'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+
+  /me/photos:
+    post:
+      summary: Reserve a profile photo and get a presigned upload URL
+      description: Talent only. Upload the file with PUT to `upload_url`, then the photo appears in your profile.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content_type:
+                  type: string
+                  example: image/jpeg
+      responses:
+        '201':
+          description: Photo slot created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photo:
+                    $ref: '#/components/schemas/Photo'
+                  upload_url:
+                    type: string
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Error:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [talent, client]
+        is_verified:
+          type: boolean
+    Photo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+        position:
+          type: integer
+    TalentProfileInput:
+      type: object
+      required: [display_name, city, age]
+      properties:
+        talent_type:
+          type: string
+          default: model
+        display_name:
+          type: string
+        city:
+          type: string
+        age:
+          type: integer
+          minimum: 18
+        height_cm:
+          type: integer
+          nullable: true
+        bio:
+          type: string
+        rate_min:
+          type: integer
+          description: Daily rate in paise
+        rate_max:
+          type: integer
+          description: Daily rate in paise
+    TalentProfile:
+      allOf:
+        - $ref: '#/components/schemas/TalentProfileInput'
+        - type: object
+          properties:
+            role:
+              type: string
+              example: talent
+            photos:
+              type: array
+              items:
+                $ref: '#/components/schemas/Photo'
+    ClientProfileInput:
+      type: object
+      required: [display_name]
+      properties:
+        display_name:
+          type: string
+        org_name:
+          type: string
+    ClientProfile:
+      allOf:
+        - $ref: '#/components/schemas/ClientProfileInput'
+        - type: object
+          properties:
+            role:
+              type: string
+              example: client

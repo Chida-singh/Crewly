@@ -102,6 +102,7 @@ crewly/
 | `ENV` | `development` | Environment (`development`, `production`) |
 | `DATABASE_URL` | `postgres://crewly:crewly_secret@localhost:5432/crewly?sslmode=disable` | PostgreSQL connection string |
 | `JWT_SECRET` | `dev_jwt_secret_crewly_market_2026_super_secure` | Secret key for signing JWT tokens |
+| `PUBLIC_BASE_URL` | `http://localhost:8080` | Public origin used for dev photo upload URLs |
 
 ---
 
