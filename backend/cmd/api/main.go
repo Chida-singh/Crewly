@@ -102,7 +102,9 @@ func main() {
 
 	// Local stand-in for object storage; never enabled in production.
 	if cfg.Env != "production" {
-		r.Put("/uploads/*", storage.DevUploadHandler("uploads"))
+		devUploads := storage.DevUploadHandler("uploads")
+		r.Get("/uploads/*", devUploads)
+		r.Put("/uploads/*", devUploads)
 	}
 
 	server := &http.Server{

@@ -29,18 +29,34 @@ func (d *DevPresigner) PresignPut(_ context.Context, key, _ string) (string, str
 	return public + "?signature=dev", public, nil
 }
 
-// DevUploadHandler stores PUT bodies under dir. It stands in for object storage in development only.
+// DevUploadHandler stores PUT bodies under dir and serves them back on GET.
+// It stands in for object storage in development only.
 func DevUploadHandler(dir string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := strings.TrimPrefix(r.URL.Path, "/uploads/")
 		key = filepath.ToSlash(filepath.Clean("/" + key))
 		key = strings.TrimPrefix(key, "/")
-		if r.URL.Query().Get("signature") != "dev" || key == "" || strings.Contains(key, "..") {
+		if key == "" || strings.HasPrefix(key, "..") {
 			http.Error(w, "invalid upload target", http.StatusForbidden)
 			return
 		}
-
 		path := filepath.Join(dir, filepath.FromSlash(key))
+
+		switch r.Method {
+		case http.MethodGet:
+			http.ServeFile(w, r, path)
+			return
+		case http.MethodPut:
+			if r.URL.Query().Get("signature") != "dev" {
+				http.Error(w, "invalid upload target", http.StatusForbidden)
+				return
+			}
+		default:
+			w.Header().Set("Allow", "GET, PUT")
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
 		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 			http.Error(w, "storage unavailable", http.StatusInternalServerError)
 			return
